@@ -3,15 +3,17 @@ package com.OlaElectric.Kafka;
 import com.OlaElectric.Configuration.KafkaConfiguration;
 import com.OlaElectric.Constants.MessageType;
 import com.OlaElectric.Subscribers.KafkaSubscriber;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.slf4j.Logger;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Logger;
 
-
+@Slf4j
 public class KafkaConnector<U,V> {
 
     private KafkaConfiguration kafkaConfiguration;
@@ -20,35 +22,28 @@ public class KafkaConnector<U,V> {
         this.kafkaConfiguration = configuration;
     }
 
-    static Logger logger;
-
     public void consume(){
-        KafkaSubscriber subscriber = null;
-        if (kafkaConfiguration.getSubscribeType().equals(MessageType.TEXT.name())) {
-            subscriber = new KafkaSubscriber<String>();
-        } else {
-            subscriber = new KafkaSubscriber<byte[]>();
-        }
+        KafkaSubscriber subscriber = new KafkaSubscriber<V>();
         KafkaConsumer kafkaConsumer = null;
         try{
             kafkaConsumer = new KafkaConsumer<U,V>(kafkaProperties());
 
             List topics = new ArrayList();
+
             topics.add(kafkaConfiguration.getTopic());
 
             kafkaConsumer.subscribe(topics);
-
+            System.out.println("<------------------KAFKA Connection is successful and is Subscribing----------------------->");
             while (true){
                 ConsumerRecords<U,V> records = kafkaConsumer.poll(10);
                 for (ConsumerRecord<U,V> record: records){
-                    logger.info("<-------------------- this is the receiver printing --------------->");
-
+                    System.out.println("<------------------Message Received----------------------->");
                     subscriber.printText(record.value());
-
                 }
             }
         }catch (Exception e){
-            System.out.println(e.getMessage());
+            System.out.println("An Exception has occured!");
+            e.printStackTrace();
         }finally {
             kafkaConsumer.close();
         }

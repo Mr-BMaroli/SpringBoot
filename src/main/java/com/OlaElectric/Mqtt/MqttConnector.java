@@ -28,6 +28,7 @@ public class MqttConnector {
             connectOptions.setCleanSession(true);
             connectOptions.setAutomaticReconnect(true);
             client.connect(connectOptions);
+            System.out.println("<------------------MQTT Connection is successful----------------------->");
         } catch (MqttException exception){
             exception.printStackTrace();
         }

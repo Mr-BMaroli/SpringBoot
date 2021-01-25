@@ -16,6 +16,7 @@ public class Main {
         String source = args[0];
 
         if(source.equals(ConnectorType.MQTT.name())){
+           System.out.println("<------------------ Source selected is MQTT----------------------->");
             MqttConfiguration configuration = new MqttConfiguration();
             configuration.setHost(args[1]);
             configuration.setTopic(args[2]);
@@ -25,6 +26,7 @@ public class Main {
             connectToMqtt(configuration);
         }
         else if (source.equals(ConnectorType.KAFKA.name())){
+            System.out.println("<------------------ Source selected is KAFKA----------------------->");
             KafkaConfiguration configuration = new KafkaConfiguration();
             configuration.setHost(args[1]);
             configuration.setTopic(args[2]);
@@ -35,15 +37,18 @@ public class Main {
             connectToKafka(configuration);
         }
         else {
-            System.out.println("wrong subsrcibing topic");
+            System.out.println("<------------------ Wrong Source selected----------------------->");
         }
 
     }
 
 
     public static void connectToMqtt(MqttConfiguration configuration) throws MqttException, InterruptedException {
+        System.out.println("<------------------Starting MQTT Connection----------------------->");
         MqttConnector mqttConnection = new MqttConnector(configuration);
         mqttConnection.connect();
+        System.out.println("<------------------Subscribing Mqtt messages----------------------->");
+
         while(true){
             mqttConnection.subscribe();
             Thread.sleep(45000);
@@ -51,13 +56,15 @@ public class Main {
     }
 
     public static void connectToKafka(KafkaConfiguration configuration){
+        System.out.println("<------------------Starting KAFKA Connection----------------------->");
         KafkaConnector kafkaConnector = null;
-
         if (configuration.getSubscribeType().equals(MessageType.TEXT.name())){
              kafkaConnector = new KafkaConnector<String,String>(configuration);
         } else {
             kafkaConnector = new KafkaConnector<String,byte[]>(configuration);
         }
+        System.out.println("<------------------IGNORE THE SLF4J MESSAGES----------------------->");
+        System.out.println("<------------------Subscribing KAFKA messages----------------------->");
         kafkaConnector.consume();
     }
 
